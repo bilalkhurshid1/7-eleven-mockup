@@ -28,7 +28,7 @@ interface ProviderData {
 const matrixData: ProviderData[] = [
   {
     name: 'AWS',
-    color: '#ff9900',
+    color: '#008163',
     yearValue: 3000000,
     quarterValues: { 'Q1': 1800000, 'Q2': 1200000 },
     monthValues: { 'Jan': 580000, 'Feb': 620000, 'Mar': 600000, 'Apr': 750000, 'May': 450000 },
@@ -129,7 +129,7 @@ const matrixData: ProviderData[] = [
   },
   {
     name: 'Azure',
-    color: '#0078d4',
+    color: '#F4811F',
     yearValue: 1900000,
     quarterValues: { 'Q1': 1100000, 'Q2': 800000 },
     monthValues: { 'Jan': 350000, 'Feb': 380000, 'Mar': 370000, 'Apr': 450000, 'May': 350000 },
@@ -224,7 +224,7 @@ const matrixData: ProviderData[] = [
   },
   {
     name: 'GCP',
-    color: '#4285f4',
+    color: '#EE2526',
     yearValue: 700000,
     quarterValues: { 'Q1': 400000, 'Q2': 300000 },
     monthValues: { 'Jan': 120000, 'Feb': 135000, 'Mar': 145000, 'Apr': 170000, 'May': 130000 },
@@ -313,7 +313,7 @@ const matrixData: ProviderData[] = [
   },
   {
     name: 'OCI',
-    color: '#c74634',
+    color: '#ff8d8d',
     yearValue: 250000,
     quarterValues: { 'Q1': 150000, 'Q2': 100000 },
     monthValues: { 'Jan': 45000, 'Feb': 48000, 'Mar': 57000, 'Apr': 55000, 'May': 45000 },

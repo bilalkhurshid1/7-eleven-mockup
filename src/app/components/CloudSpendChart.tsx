@@ -57,19 +57,19 @@ export function CloudSpendChart({ dimension = 'provider', selectedProvider = 'Al
   const { data, lines } = getChartData();
   
   const colors: Record<string, string> = {
-    AWS: '#ff9900',
-    Azure: '#0078d4',
-    GCP: '#4285f4',
-    OCI: '#c74634',
-    Compute: '#3b82f6',
-    Storage: '#8b5cf6',
-    'AI/ML': '#06b6d4',
-    Networking: '#10b981',
-    Retail: '#f59e0b',
-    IT: '#6366f1',
-    Accounting: '#ec4899',
-    'Supply Chain': '#14b8a6',
-    'Digital Products': '#84cc16'
+    AWS: '#008163',
+    Azure: '#F4811F',
+    GCP: '#EE2526',
+    OCI: '#ff8d8d',
+    Compute: '#008163',
+    Storage: '#F4811F',
+    'AI/ML': '#EE2526',
+    Networking: '#ff8d8d',
+    Retail: '#008163',
+    IT: '#F4811F',
+    Accounting: '#EE2526',
+    'Supply Chain': '#ff8d8d',
+    'Digital Products': '#005544'
   };
 
   return (
@@ -78,7 +78,7 @@ export function CloudSpendChart({ dimension = 'provider', selectedProvider = 'Al
         <h3 className="text-[13px] text-gray-800" style={{ fontWeight: 600 }}>
           Cloud Spend by {dimension === 'provider' ? 'Provider' : dimension === 'costType' ? 'Cost Type' : 'Business Unit'} – YTD
         </h3>
-        <div className="flex items-center gap-1 text-[10px] text-gray-500 bg-blue-50 px-2 py-1 rounded">
+        <div className="flex items-center gap-1 text-[10px] text-gray-500 bg-green-50 px-2 py-1 rounded">
           <Link2 className="w-3 h-3" />
           <span>Linked</span>
         </div>

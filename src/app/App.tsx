@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import sevenElevenLogo from '../assets/7-eleven_logo.png';
 import { FilterPill } from './components/FilterPill';
 import { KPICard } from './components/KPICard';
 import { CloudSpendChart } from './components/CloudSpendChart';
@@ -15,11 +16,14 @@ export default function App() {
       <div className="max-w-[1920px] mx-auto">
         {/* Header */}
         <div className="mb-5 flex items-start justify-between">
-          <div>
-            <h1 className="text-[28px] mb-0.5 text-gray-900" style={{ fontWeight: 600 }}>
-              Cloud Spend Dashboard
-            </h1>
-            <p className="text-[13px] text-gray-600">Executive Summary · YTD 2026</p>
+          <div className="flex items-center gap-3">
+            <img src={sevenElevenLogo} alt="7-Eleven" className="h-12 w-auto" />
+            <div>
+              <h1 className="text-[28px] mb-0.5 text-gray-900" style={{ fontWeight: 600 }}>
+                Cloud Spend Dashboard
+              </h1>
+              <p className="text-[13px] text-gray-600">Last refreshed 05/11/2026</p>
+            </div>
           </div>
           <div className="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded text-[11px] text-amber-700">
             <span style={{ fontWeight: 600 }}>MOCKUP</span> · Static Data
