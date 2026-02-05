@@ -473,38 +473,81 @@ export function DrillDownMatrix({ selectedProvider = 'All' }: DrillDownMatrixPro
 
   const grandTotal = filteredData.reduce((sum, item) => sum + item.yearValue, 0);
 
-  // Helper to get columns dynamically
-  const getColumns = (): MatrixColumn[] => {
+  // Helper to get columns dynamically and header structure
+  const getColumnsAndHeaders = () => {
     const columns: MatrixColumn[] = [];
+    const headerRows: Array<Array<{key: string, label: string, colspan: number, expandable?: boolean, expanded?: boolean}>> = [[], [], []];
     
     const is2026Expanded = expandedYears.has('2026');
-    columns.push({
+    
+    // Calculate 2026 colspan
+    let yearColspan = 1;
+    if (is2026Expanded) {
+      yearColspan = 0;
+      ['Q1', 'Q2'].forEach(quarter => {
+        const isQuarterExpanded = expandedQuarters.has(`2026-${quarter}`);
+        if (isQuarterExpanded) {
+          const months = quarter === 'Q1' ? ['Jan', 'Feb', 'Mar'] : ['Apr', 'May'];
+          yearColspan += months.length;
+        } else {
+          yearColspan += 1;
+        }
+      });
+    }
+
+    // Row 1: Year header
+    headerRows[0].push({
       key: '2026',
       label: '2026',
-      getValue: (item: any) => item.yearValue || 0,
+      colspan: yearColspan,
       expandable: true,
       expanded: is2026Expanded
     });
 
-    if (is2026Expanded) {
+    // Add columns and subsequent header rows
+    if (!is2026Expanded) {
+      columns.push({
+        key: '2026',
+        label: '2026',
+        getValue: (item: any) => item.yearValue || 0,
+        expandable: true,
+        expanded: is2026Expanded
+      });
+      headerRows[1].push({key: '', label: '', colspan: 1});
+      headerRows[2].push({key: '', label: '', colspan: 1});
+    } else {
       ['Q1', 'Q2'].forEach(quarter => {
         const isQuarterExpanded = expandedQuarters.has(`2026-${quarter}`);
-        columns.push({
+        const months = quarter === 'Q1' ? ['Jan', 'Feb', 'Mar'] : ['Apr', 'May'];
+        const quarterColspan = isQuarterExpanded ? months.length : 1;
+
+        // Row 2: Quarter header
+        headerRows[1].push({
           key: `2026-${quarter}`,
           label: quarter,
-          getValue: (item: any) => item.quarterValues?.[quarter] || 0,
+          colspan: quarterColspan,
           expandable: true,
           expanded: isQuarterExpanded
         });
 
-        if (isQuarterExpanded) {
-          const months = quarter === 'Q1' ? ['Jan', 'Feb', 'Mar'] : ['Apr', 'May'];
+        if (!isQuarterExpanded) {
+          columns.push({
+            key: `2026-${quarter}`,
+            label: quarter,
+            getValue: (item: any) => item.quarterValues?.[quarter] || 0,
+            expandable: true,
+            expanded: isQuarterExpanded
+          });
+          headerRows[2].push({key: '', label: '', colspan: 1});
+        } else {
           months.forEach(month => {
             columns.push({
               key: `2026-${quarter}-${month}`,
               label: month,
               getValue: (item: any) => item.monthValues?.[month] || 0
             });
+            // Row 3: Month header
+            headerRows[2].push({key: `2026-${quarter}-${month}`, label: month, colspan: 1});
           });
         }
       });
@@ -517,10 +560,15 @@ export function DrillDownMatrix({ selectedProvider = 'All' }: DrillDownMatrixPro
       getValue: (item: any) => item.yearValue || 0
     });
 
-    return columns;
+    // Total header spans all 3 rows
+    headerRows[0].push({key: 'total', label: 'Total', colspan: 1});
+    headerRows[1].push({key: '', label: '', colspan: 1});
+    headerRows[2].push({key: '', label: '', colspan: 1});
+
+    return { columns, headerRows };
   };
 
-  const columns = getColumns();
+  const { columns, headerRows } = getColumnsAndHeaders();
 
   return (
     <div className="bg-white border border-gray-200 rounded-sm p-5 shadow-sm">
@@ -529,36 +577,51 @@ export function DrillDownMatrix({ selectedProvider = 'All' }: DrillDownMatrixPro
       </h3>
       
       <div className="overflow-hidden border border-gray-200 rounded-sm">
-        {/* Header */}
-        <div className={`grid bg-gray-50 border-b border-gray-200`} style={{ gridTemplateColumns: `300px repeat(${columns.length}, 120px)` }}>
-          <div className="px-4 py-3 text-xs text-gray-600" style={{ fontWeight: 600 }}>
-            Provider / Cost Type / Line Item
+        {/* Headers - Multi-row hierarchical structure */}
+        {headerRows.map((row, rowIndex) => (
+          <div key={rowIndex} className={`grid bg-gray-50 ${rowIndex === headerRows.length - 1 ? 'border-b border-gray-200' : 'border-b border-gray-100'}`} style={{ gridTemplateColumns: `300px repeat(${columns.length}, 120px)` }}>
+            {/* Row label - only show on first row */}
+            {rowIndex === 0 && (
+              <div className="px-4 py-2 text-xs text-gray-600" style={{ fontWeight: 600, gridRow: `1 / ${headerRows.length + 1}` }}>
+                Provider / Cost Type / Line Item
+              </div>
+            )}
+            {rowIndex > 0 && <div></div>}
+            
+            {/* Header cells */}
+            {row.map(header => (
+              header.label ? (
+                <div
+                  key={header.key}
+                  className={`px-4 py-2 text-xs text-gray-600 text-right flex items-center justify-end gap-1 ${
+                    header.expandable ? 'cursor-pointer hover:bg-gray-100' : ''
+                  }`}
+                  style={{ 
+                    fontWeight: 600,
+                    gridColumn: header.colspan > 1 ? `span ${header.colspan}` : undefined
+                  }}
+                  onClick={header.expandable ? () => {
+                    if (header.key === '2026') {
+                      toggleYear('2026');
+                    } else if (header.key.startsWith('2026-Q')) {
+                      const quarter = header.key.split('-')[1];
+                      toggleQuarter('2026', quarter);
+                    }
+                  } : undefined}
+                >
+                  {header.label}
+                  {header.expandable && (
+                    header.expanded ? 
+                      <ChevronDown className="w-3 h-3" /> : 
+                      <ChevronRight className="w-3 h-3" />
+                  )}
+                </div>
+              ) : (
+                <div key={`empty-${rowIndex}-${header.key}`}></div>
+              )
+            ))}
           </div>
-          {columns.map(column => (
-            <div
-              key={column.key}
-              className={`px-4 py-3 text-xs text-gray-600 text-right flex items-center justify-end gap-1 ${
-                column.expandable ? 'cursor-pointer hover:bg-gray-100' : ''
-              }`}
-              style={{ fontWeight: 600 }}
-              onClick={column.expandable ? () => {
-                if (column.key === '2026') {
-                  toggleYear('2026');
-                } else if (column.key.startsWith('2026-Q')) {
-                  const quarter = column.key.split('-')[1];
-                  toggleQuarter('2026', quarter);
-                }
-              } : undefined}
-            >
-              {column.label}
-              {column.expandable && (
-                column.expanded ? 
-                  <ChevronDown className="w-3 h-3" /> : 
-                  <ChevronRight className="w-3 h-3" />
-              )}
-            </div>
-          ))}
-        </div>
+        ))}
 
         {/* Data Rows */}
         {filteredData.map((providerData, providerIndex) => {
